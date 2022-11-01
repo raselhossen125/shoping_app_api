@@ -1,7 +1,11 @@
+// ignore_for_file: prefer_const_constructors, unnecessary_null_comparison
+
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shoping_app_api/api_services/api_handeler.dart';
+import 'package:shoping_app_api/models/products_model.dart';
 import 'package:shoping_app_api/screens/users_screen.dart';
 import '../consts/global_colors.dart';
 import '../widgets/appbar_icons.dart';
@@ -18,17 +22,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late TextEditingController _textEditingController;
-  @override
-  void initState() {
-    _textEditingController = TextEditingController();
-    super.initState();
-  }
+  final _textEditingController = TextEditingController();
+  List<ProductsModel> productsList = [];
 
   @override
-  void dispose() {
-    _textEditingController.dispose();
-    super.dispose();
+  void didChangeDependencies() async {
+    getProducts();
+    super.didChangeDependencies();
+  }
+
+  Future<void> getProducts() async {
+    productsList = await ApiHandeler.getAllProducts();
+    setState(() {});
   }
 
   @override
@@ -100,66 +105,79 @@ class _HomeScreenState extends State<HomeScreen> {
                         IconlyLight.search,
                         color: lightIconsColor,
                       )),
-                ), const SizedBox(
+                ),
+                const SizedBox(
                   height: 18,
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    child: Column(children: [
-                      SizedBox(
-                        height: size.height * 0.25,
-                        child: Swiper(
-                          itemCount: 3,
-                          itemBuilder: (ctx, index) {
-                            return const SaleWidget();
-                          },
-                          autoplay: true,
-                          pagination: const SwiperPagination(
-                              alignment: Alignment.bottomCenter,
-                              builder: DotSwiperPaginationBuilder(
-                                  color: Colors.white,
-                                  activeColor: Colors.red)),
-                          // control: const SwiperControl(),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: size.height * 0.25,
+                          child: Swiper(
+                            itemCount: 3,
+                            itemBuilder: (ctx, index) {
+                              return const SaleWidget();
+                            },
+                            autoplay: true,
+                            pagination: const SwiperPagination(
+                                alignment: Alignment.bottomCenter,
+                                builder: DotSwiperPaginationBuilder(
+                                    color: Colors.white,
+                                    activeColor: Colors.red)),
+                            // control: const SwiperControl(),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            const Text(
-                              "Latest Products",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              const Text(
+                                "Latest Products",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            AppBarIcons(
-                                function: () {
-                                  Navigator.push(
-                                      context,
-                                      PageTransition(
-                                          type: PageTransitionType.fade,
-                                          child: const FeedsScreen()));
-                                },
-                                icon: IconlyBold.arrowRight2),
-                          ],
+                              const Spacer(),
+                              AppBarIcons(
+                                  function: () {
+                                    Navigator.push(
+                                        context,
+                                        PageTransition(
+                                            type: PageTransitionType.fade,
+                                            child: FeedsScreen(
+                                                productsList: productsList)));
+                                  },
+                                  icon: IconlyBold.arrowRight2),
+                            ],
+                          ),
                         ),
-                      ),
-                      GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: 3,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 0.0,
-                                  mainAxisSpacing: 0.0,
-                                  childAspectRatio: 2/3),
-                          itemBuilder: (ctx, index) {
-                            return const FeedsWidget();
-                          })
-                    ]),
+                        productsList != null
+                            ? GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: productsList.length >= 10 ? 10 : productsList.length,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        crossAxisSpacing: 0.0,
+                                        mainAxisSpacing: 0.0,
+                                        childAspectRatio: 2 / 3.1),
+                                itemBuilder: (ctx, index) {
+                                  final prodM = productsList[index];
+                                  return FeedsWidget(
+                                    prodM: prodM,
+                                  );
+                                },
+                              )
+                            : Center(
+                                child: CircularProgressIndicator(
+                                    color: Colors.red),
+                              )
+                      ],
+                    ),
                   ),
                 )
               ],

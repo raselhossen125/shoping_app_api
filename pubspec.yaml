@@ -40,6 +40,8 @@ dependencies:
   card_swiper:
   fancy_shimmer_image:
   page_transition:
+  http:
+  provider:
 
 dev_dependencies:
   flutter_test:

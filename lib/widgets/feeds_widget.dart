@@ -1,12 +1,19 @@
+// ignore_for_file: use_key_in_widget_constructors, must_be_immutable, prefer_const_constructors
+
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shoping_app_api/models/products_model.dart';
 import '../consts/global_colors.dart';
 import '../screens/product_details.dart';
 
 class FeedsWidget extends StatelessWidget {
-  const FeedsWidget({Key? key}) : super(key: key);
+  ProductsModel prodM;
+
+  FeedsWidget({
+    required this.prodM,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +30,7 @@ class FeedsWidget extends StatelessWidget {
               context,
               PageTransition(
                 type: PageTransitionType.fade,
-                child: const ProductDetails(),
+                child: ProductDetails(singleProd: prodM),
               ),
             );
           },
@@ -43,7 +50,7 @@ class FeedsWidget extends StatelessWidget {
                                 color: Color.fromRGBO(33, 150, 243, 1)),
                             children: <TextSpan>[
                               TextSpan(
-                                  text: "168.00",
+                                  text: prodM.price!.toDouble().toString(),
                                   style: TextStyle(
                                       color: lightTextColor,
                                       fontWeight: FontWeight.w600)),
@@ -65,15 +72,15 @@ class FeedsWidget extends StatelessWidget {
                     color: Colors.red,
                     size: 28,
                   ),
-                  imageUrl: "https://placeimg.com/640/480/any",
+                  imageUrl: prodM.images![0],
                   boxFit: BoxFit.fill,
                 ),
               ),
               const SizedBox(height: 10),
-              const Padding(
+               Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  "Title",
+                  prodM.title.toString(),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                   style: TextStyle(
